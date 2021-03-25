@@ -9,6 +9,18 @@
     </string-array>
 
     <!-- Preference screen -->
+    <string-array name="run_on_wifi_vpn_values">
+        <item>wifi_ignore_vpn</item>
+        <item>wifi_only_vpn</item>
+        <item>wifi_never_vpn</item>
+    </string-array>
+
+    <string-array name="run_on_mobile_data_vpn_values">
+        <item>mobile_data_ignore_vpn</item>
+        <item>mobile_data_only_vpn</item>
+        <item>mobile_data_never_vpn</item>
+    </string-array>
+
     <string-array name="power_source_values">
         <item>ac_and_battery_power</item>
         <item>ac_power</item>

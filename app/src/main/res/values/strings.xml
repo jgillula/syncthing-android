@@ -313,6 +313,14 @@ Please report any problems you encounter via Github.</string>
     <string name="run_on_mobile_data_title">Run on mobile data</string>
     <string name="run_on_mobile_data_summary">Run when device is connected via the mobile data network. Warning: This can consume a lot of data from your mobile operator data plan if you sync large amounts of data.</string>
 
+    <string name="run_on_mobile_data_vpn_title">VPN over mobile data conditions</string>
+
+    <string-array name="run_on_mobile_data_vpn_entries">
+        <item>Run on mobile data regardless of VPN status</item>
+        <item>Run on mobile data only if VPN is connected</item>
+        <item>Do not run on mobile data if VPN is connected</item>
+    </string-array>
+
     <string name="run_on_wifi_title">Run on Wi-Fi</string>
     <string name="run_on_wifi_summary">Run when device is connected to a Wi-Fi network.</string>
 
@@ -330,6 +338,14 @@ Please report any problems you encounter via Github.</string>
 
     <string name="sync_only_wifi_ssids_location_permission_rejected_dialog_title">Permission required</string>
     <string name="sync_only_wifi_ssids_location_permission_rejected_dialog_content">Starting with Android 8.1, location access is required to be able to read the Wi-Fi\'s name. You can use this feature only if you grant this permission.</string>
+
+    <string name="run_on_wifi_vpn_title">VPN over Wi-Fi conditions</string>
+
+    <string-array name="run_on_wifi_vpn_entries">
+        <item>Run on Wi-Fi regardless of VPN status</item>
+        <item>Run on Wi-Fi only if VPN is connected</item>
+        <item>Do not run on Wi-Fi if VPN is connected</item>
+    </string-array>
 
     <string name="power_source_title">Run when device is powered by</string>
 

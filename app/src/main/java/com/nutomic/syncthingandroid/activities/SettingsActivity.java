@@ -105,9 +105,11 @@ public class SettingsActivity extends SyncthingActivity {
         private CheckBoxPreference mStartServiceOnBoot;
         private ListPreference     mPowerSource;
         private CheckBoxPreference mRunOnMobileData;
+        private ListPreference     mRunOnMobileDataVpn;
         private CheckBoxPreference mRunOnWifi;
         private CheckBoxPreference mRunOnMeteredWifi;
         private WifiSsidPreference mWifiSsidWhitelist;
+        private ListPreference     mRunOnWifiVpn;
         private CheckBoxPreference mRunInFlightMode;
 
         private Preference         mCategorySyncthingOptions;
@@ -173,12 +175,16 @@ public class SettingsActivity extends SyncthingActivity {
                     (ListPreference) findPreference(Constants.PREF_POWER_SOURCE);
             mRunOnMobileData =
                     (CheckBoxPreference) findPreference(Constants.PREF_RUN_ON_WIFI);
+            mRunOnMobileDataVpn =
+                    (ListPreference) findPreference(Constants.PREF_RUN_ON_MOBILE_DATA_VPN);
             mRunOnWifi =
                     (CheckBoxPreference) findPreference(Constants.PREF_RUN_ON_WIFI);
             mRunOnMeteredWifi =
                     (CheckBoxPreference) findPreference(Constants.PREF_RUN_ON_METERED_WIFI);
             mWifiSsidWhitelist =
                     (WifiSsidPreference) findPreference(Constants.PREF_WIFI_SSID_WHITELIST);
+            mRunOnWifiVpn =
+                    (ListPreference) findPreference(Constants.PREF_RUN_ON_WIFI_VPN);
             mRunInFlightMode =
                     (CheckBoxPreference) findPreference(Constants.PREF_RUN_IN_FLIGHT_MODE);
 
@@ -231,6 +237,9 @@ public class SettingsActivity extends SyncthingActivity {
 
             mRunOnMeteredWifi.setEnabled(mRunOnWifi.isChecked());
             mWifiSsidWhitelist.setEnabled(mRunOnWifi.isChecked());
+            mRunOnWifiVpn.setEnabled(mRunOnWifi.isChecked());
+
+            mRunOnMobileDataVpn.setEnabled(mRunOnMobileData.isChecked());
 
             mCategorySyncthingOptions = findPreference("category_syncthing_options");
             setPreferenceCategoryChangeListener(mCategorySyncthingOptions, this::onSyncthingPreferenceChange);
@@ -258,6 +267,8 @@ public class SettingsActivity extends SyncthingActivity {
 
             /* Initialize summaries */
             mPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            screen.findPreference(Constants.PREF_RUN_ON_WIFI_VPN).setSummary(mRunOnWifiVpn.getEntry());
+            screen.findPreference(Constants.PREF_RUN_ON_MOBILE_DATA_VPN).setSummary(mRunOnMobileDataVpn.getEntry());
             screen.findPreference(Constants.PREF_POWER_SOURCE).setSummary(mPowerSource.getEntry());
             String wifiSsidSummary = TextUtils.join(", ", mPreferences.getStringSet(Constants.PREF_WIFI_SSID_WHITELIST, new HashSet<>()));
             screen.findPreference(Constants.PREF_WIFI_SSID_WHITELIST).setSummary(TextUtils.isEmpty(wifiSsidSummary) ?
@@ -367,9 +378,13 @@ public class SettingsActivity extends SyncthingActivity {
                     mPowerSource.setValue(o.toString());
                     preference.setSummary(mPowerSource.getEntry());
                     break;
+                case Constants.PREF_RUN_ON_MOBILE_DATA:
+                    mRunOnMobileDataVpn.setEnabled((Boolean) o);
+                    break;
                 case Constants.PREF_RUN_ON_WIFI:
                     mRunOnMeteredWifi.setEnabled((Boolean) o);
                     mWifiSsidWhitelist.setEnabled((Boolean) o);
+                    mRunOnWifiVpn.setEnabled((Boolean) o);
                     break;
                 case Constants.PREF_WIFI_SSID_WHITELIST:
                     String wifiSsidSummary = TextUtils.join(", ", (Set<String>) o);
