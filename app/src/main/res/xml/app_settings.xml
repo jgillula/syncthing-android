@@ -39,10 +39,10 @@
         <ListPreference
             android:key="run_on_wifi_vpn"
             android:title="@string/run_on_wifi_vpn_title"
-            android:entryValues="@array/run_on_wifi_vpn_values"
+            android:entryValues="@array/run_on_vpn_values"
             android:entries="@array/run_on_wifi_vpn_entries"
             android:summary="@null"
-            android:defaultValue="wifi_ignore_vpn" />
+            android:defaultValue="ignore_vpn" />
 
         <CheckBoxPreference
             android:key="run_on_mobile_data"
@@ -53,10 +53,10 @@
         <ListPreference
             android:key="run_on_mobile_data_vpn"
             android:title="@string/run_on_mobile_data_vpn_title"
-            android:entryValues="@array/run_on_mobile_data_vpn_values"
+            android:entryValues="@array/run_on_vpn_values"
             android:entries="@array/run_on_mobile_data_vpn_entries"
             android:summary="@null"
-            android:defaultValue="mobile_data_ignore_vpn" />
+            android:defaultValue="ignore_vpn" />
 
         <ListPreference
             android:key="power_source"

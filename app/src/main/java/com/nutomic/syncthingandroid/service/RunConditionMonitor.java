@@ -9,6 +9,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SyncStatusObserver;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -18,10 +20,14 @@ import android.os.PowerManager;
 import androidx.annotation.Nullable;
 import android.util.Log;
 
+import com.nutomic.syncthingandroid.R;
 import com.nutomic.syncthingandroid.SyncthingApp;
 import com.nutomic.syncthingandroid.model.RunConditionCheckResult;
 
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,6 +50,10 @@ public class RunConditionMonitor {
     private static final String POWER_SOURCE_CHARGER_BATTERY = "ac_and_battery_power";
     private static final String POWER_SOURCE_CHARGER = "ac_power";
     private static final String POWER_SOURCE_BATTERY = "battery_power";
+
+    private static final String IGNORE_VPN = "ignore_vpn";
+    private static final String ONLY_ON_VPN = "only_on_vpn";
+    private static final String NEVER_ON_VPN = "never_on_vpn";
 
     private @Nullable Object mSyncStatusObserverHandle = null;
     private final SyncStatusObserver mSyncStatusObserver = new SyncStatusObserver() {
@@ -163,10 +173,12 @@ public class RunConditionMonitor {
     private RunConditionCheckResult decideShouldRun() {
         // Get run conditions preferences.
         boolean prefRunOnMobileData= mPreferences.getBoolean(Constants.PREF_RUN_ON_MOBILE_DATA, false);
+        String prefRunOnMobileDataVpn = mPreferences.getString(Constants.PREF_RUN_ON_MOBILE_DATA_VPN, IGNORE_VPN);
         boolean prefRunOnWifi= mPreferences.getBoolean(Constants.PREF_RUN_ON_WIFI, true);
         boolean prefRunOnMeteredWifi= mPreferences.getBoolean(Constants.PREF_RUN_ON_METERED_WIFI, false);
         Set<String> whitelistedWifiSsids = mPreferences.getStringSet(Constants.PREF_WIFI_SSID_WHITELIST, new HashSet<>());
         boolean prefWifiWhitelistEnabled = !whitelistedWifiSsids.isEmpty();
+        String prefRunOnWifiVpn = mPreferences.getString(Constants.PREF_RUN_ON_WIFI_VPN, IGNORE_VPN);
         boolean prefRunInFlightMode = mPreferences.getBoolean(Constants.PREF_RUN_IN_FLIGHT_MODE, false);
         String prefPowerSource = mPreferences.getString(Constants.PREF_POWER_SOURCE, POWER_SOURCE_CHARGER_BATTERY);
         boolean prefRespectPowerSaving = mPreferences.getBoolean(Constants.PREF_RESPECT_BATTERY_SAVING, true);
@@ -344,6 +356,68 @@ public class RunConditionMonitor {
         }
         return cm.isActiveNetworkMetered();
     }
+
+    private boolean isVpnActive() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            // API level < 21
+            return isVpnActive_API16();
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            // API level < 23
+            return isVpnActive_API21();
+        } else {
+            // API level >= 23
+            return isVpnActive_API23();
+        }
+    }
+
+    @TargetApi(16)
+    private boolean isVpnActive_API16() {
+        // For API 16 through 20, we just have to check each interface and see if its name contains
+        // "tun", "ppp", or "pptp"
+        String iface = "";
+        try {
+            for (NetworkInterface networkInterface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+                if (networkInterface.isUp())
+                    iface = networkInterface.getName();
+                Log.d("DEBUG", "IFACE NAME: " + iface);
+                if ( iface.contains("tun") || iface.contains("ppp") || iface.contains("pptp")) {
+                    return true;
+                }
+            }
+        } catch (SocketException e1) {
+            e1.printStackTrace();
+        }
+
+        return false;
+    }
+
+    @TargetApi(21)
+    private boolean isVpnActive_API21() {
+        // For API 21 and 22, we don't know which network is active, so we check to see if any of
+        // them are a VPN
+        ConnectivityManager cm = (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network[] networks = cm.getAllNetworks();
+
+        for(int i = 0; i < networks.length; i++) {
+            NetworkCapabilities caps = cm.getNetworkCapabilities(networks[i]);
+
+            if(caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @TargetApi(23)
+    private boolean isVpnActive_API23() {
+        // On API 23+, we can just check if the active network is a VPN
+        ConnectivityManager cm = (ConnectivityManager)mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network activeNetwork = cm.getActiveNetwork();
+        NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
+        return caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN);
+    }
+
 
     private boolean isMobileDataConnection() {
         ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
