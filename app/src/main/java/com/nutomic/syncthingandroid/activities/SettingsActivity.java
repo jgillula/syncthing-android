@@ -174,7 +174,7 @@ public class SettingsActivity extends SyncthingActivity {
             mPowerSource =
                     (ListPreference) findPreference(Constants.PREF_POWER_SOURCE);
             mRunOnMobileData =
-                    (CheckBoxPreference) findPreference(Constants.PREF_RUN_ON_WIFI);
+                    (CheckBoxPreference) findPreference(Constants.PREF_RUN_ON_MOBILE_DATA);
             mRunOnMobileDataVpn =
                     (ListPreference) findPreference(Constants.PREF_RUN_ON_MOBILE_DATA_VPN);
             mRunOnWifi =
@@ -381,10 +381,18 @@ public class SettingsActivity extends SyncthingActivity {
                 case Constants.PREF_RUN_ON_MOBILE_DATA:
                     mRunOnMobileDataVpn.setEnabled((Boolean) o);
                     break;
+                case Constants.PREF_RUN_ON_MOBILE_DATA_VPN:
+                    mRunOnMobileDataVpn.setValue(o.toString());
+                    preference.setSummary(mRunOnMobileDataVpn.getEntry());
+                    break;
                 case Constants.PREF_RUN_ON_WIFI:
                     mRunOnMeteredWifi.setEnabled((Boolean) o);
                     mWifiSsidWhitelist.setEnabled((Boolean) o);
                     mRunOnWifiVpn.setEnabled((Boolean) o);
+                    break;
+                case Constants.PREF_RUN_ON_WIFI_VPN:
+                    mRunOnWifiVpn.setValue(o.toString());
+                    preference.setSummary(mRunOnWifiVpn.getEntry());
                     break;
                 case Constants.PREF_WIFI_SSID_WHITELIST:
                     String wifiSsidSummary = TextUtils.join(", ", (Set<String>) o);
